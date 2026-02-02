@@ -159,7 +159,41 @@
     "uploadMessage": "选择上传选项。",
     "optionalPassword": "密码（选填，不填即无密码）",
     "resolution": "分辨率",
-    "discardEditorChanges": "你确定要放弃所做的更改吗？"
+    "discardEditorChanges": "你确定要放弃所做的更改吗？",
+    "authVerify": "授权验证",
+    "authApplySuccess": "授权申请提交成功",
+    "authVerifySuccess": "授权验证成功",
+    "authVerifyFailed": "授权验证失败",
+    "authApply": {
+      "title": "授权申请",
+      "condition": "授权条件",
+      "count": "次数",
+      "time": "时间",
+      "mode": "授权模式",
+      "remote": "远程",
+      "approver": "审批人",
+      "reason": "申请原因",
+      "reasonPlaceholder": "请输入申请原因",
+      "submit": "提交申请",
+      "reasonRequired": "申请原因不能为空"
+    }
+  },
+  "auth": {
+    "condition": "授权条件",
+    "timeDuration": "授权时长",
+    "approver": "审批人",
+    "reason": "申请原因",
+    "submitAuthApply": "提交申请",
+    "verificationCode": "验证码",
+    "getCode": "获取验证码",
+    "submitAuthVerify": "提交验证",
+    "needAuth": "需要授权",
+    "hasApplied": "已提交申请",
+    "isApproved": "授权已批准",
+    "authExpired": "授权已过期",
+    "authCheckFailed": "检查授权状态失败",
+    "authApplyFailed": "提交授权申请失败",
+    "authVerifyFailed": "验证授权码失败"
   },
   "search": {
     "images": "图像",

@@ -337,6 +337,7 @@ import { useFileStore } from "@/stores/file";
 import { useLayoutStore } from "@/stores/layout";
 
 import { users, files as api } from "@/api";
+import * as authApi from "@/api/auth";
 import { enableExec } from "@/utils/constants";
 import * as upload from "@/utils/upload";
 import css from "@/utils/css";
@@ -925,7 +926,80 @@ const windowsResize = throttle(() => {
   fillWindow();
 }, 100);
 
-const download = () => {
+const download = async () => {
+  console.log('dddddddddddddddddddd')
+  if (fileStore.req === null) return;
+
+  try {
+    // 检查授权状态
+    const authStatus = await authApi.checkAuthStatus();
+
+    if (authStatus.needAuth) {
+      if (!authStatus.hasApplied) {
+        // 显示授权申请页面
+        layoutStore.showHover({
+          prompt: "authApply",
+          confirm: async (authData: any) => {
+            layoutStore.closeHovers();
+            
+            // 提交授权申请
+            const applyResult = await authApi.submitAuthApply(authData);
+            
+            if (applyResult.success) {
+              // 显示授权认证页面
+              layoutStore.showHover({
+                prompt: "authVerify",
+                confirm: async (verifyData: any) => {
+                  layoutStore.closeHovers();
+                  
+                  // 验证授权码
+                  const verifyResult = await authApi.verifyAuthCode(verifyData.code);
+                  
+                  if (verifyResult.success) {
+                    // 授权成功，继续下载
+                    performDownload();
+                  } else {
+                    alert(verifyResult.message || "授权失败");
+                  }
+                },
+              });
+            } else {
+              alert(applyResult.message || "授权申请失败");
+            }
+          },
+        });
+      } else {
+        // 显示授权认证页面
+        layoutStore.showHover({
+          prompt: "authVerify",
+          confirm: async (verifyData: any) => {
+            layoutStore.closeHovers();
+            
+            // 验证授权码
+            const verifyResult = await authApi.verifyAuthCode(verifyData.code);
+            
+            if (verifyResult.success) {
+              // 授权成功，继续下载
+              performDownload();
+            } else {
+              alert(verifyResult.message || "授权失败");
+            }
+          },
+        });
+      }
+      return;
+    }
+
+    // 已授权，直接下载
+    performDownload();
+  } catch (error) {
+    console.error("授权检查失败:", error);
+    // 出错时直接下载
+    performDownload();
+  }
+};
+
+const performDownload = () => {
   if (fileStore.req === null) return;
 
   if (

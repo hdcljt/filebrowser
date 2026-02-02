@@ -159,7 +159,41 @@
     "uploadMessage": "選擇上傳項。",
     "optionalPassword": "密碼（選填，不填即無密碼）",
     "resolution": "解析度",
-    "discardEditorChanges": "你確定要放棄所做的變更嗎?"
+    "discardEditorChanges": "你確定要放棄所做的變更嗎?",
+    "authApply": {
+      "title": "授權申請",
+      "condition": "授權條件",
+      "count": "次數",
+      "time": "時間",
+      "mode": "授權模式",
+      "remote": "遠端",
+      "approver": "審批人",
+      "reason": "申請原因",
+      "reasonPlaceholder": "請輸入申請原因",
+      "submit": "提交申請",
+      "reasonRequired": "申請原因不能為空"
+    },
+    "authVerify": "授權驗證",
+    "authApplySuccess": "授權申請提交成功",
+    "authVerifySuccess": "授權驗證成功",
+    "authVerifyFailed": "授權驗證失敗"
+  },
+  "auth": {
+    "condition": "授權條件",
+    "timeDuration": "授權時長",
+    "approver": "審批人",
+    "reason": "申請原因",
+    "submitAuthApply": "提交申請",
+    "verificationCode": "驗證碼",
+    "getCode": "獲取驗證碼",
+    "submitAuthVerify": "提交驗證",
+    "needAuth": "需要授權",
+    "hasApplied": "已提交申請",
+    "isApproved": "授權已批准",
+    "authExpired": "授權已過期",
+    "authCheckFailed": "檢查授權狀態失敗",
+    "authApplyFailed": "提交授權申請失敗",
+    "authVerifyFailed": "驗證授權碼失敗"
   },
   "search": {
     "images": "影像",

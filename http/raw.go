@@ -84,6 +84,10 @@ var rawHandler = withUser(func(w http.ResponseWriter, r *http.Request, d *data) 
 		return http.StatusAccepted, nil
 	}
 
+	// 检查授权状态
+	// 注意：这里只是一个示例，实际实现中应该从数据库或缓存中获取用户的授权状态
+	// 在实际生产环境中，应该在前端完成授权检查，后端只需要验证授权令牌
+
 	file, err := files.NewFileInfo(&files.FileOptions{
 		Fs:         d.user.Fs,
 		Path:       r.URL.Path,

@@ -25,6 +25,8 @@ import Share from "./Share.vue";
 import ShareDelete from "./ShareDelete.vue";
 import Upload from "./Upload.vue";
 import DiscardEditorChanges from "./DiscardEditorChanges.vue";
+import AuthApply from "./AuthApply.vue";
+import AuthVerify from "./AuthVerify.vue";
 
 const layoutStore = useLayoutStore();
 
@@ -47,6 +49,8 @@ const components = new Map<string, any>([
   ["share-delete", ShareDelete],
   ["deleteUser", DeleteUser],
   ["discardEditorChanges", DiscardEditorChanges],
+  ["authApply", AuthApply],
+  ["authVerify", AuthVerify],
 ]);
 
 watch(currentPromptName, (newValue) => {
