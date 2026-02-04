@@ -128,14 +128,6 @@ const submit = async (event: Event) => {
 
 // Run hooks
 onMounted(() => {
-  // Check for token in URL query parameters for single sign-on
-  const token = route.query.token as string;
-  if (token) {
-    // If token exists, try to validate it
-    validateToken(token);
-    return;
-  }
-
   if (!recaptcha) return;
 
   window.grecaptcha.ready(function () {
@@ -145,15 +137,5 @@ onMounted(() => {
   });
 });
 
-// Validate token for single sign-on
-const validateToken = async (token: string) => {
-  try {
-    const redirect = (route.query.redirect || "/files/") as string;
-    await auth.validateToken(token);
-    router.push({ path: redirect });
-  } catch (e) {
-    console.error("Token validation failed:", e);
-    error.value = t("login.wrongCredentials");
-  }
-};
+
 </script>

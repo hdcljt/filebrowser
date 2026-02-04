@@ -183,6 +183,12 @@ router.beforeResolve(async (to, from, next) => {
 
   const authStore = useAuthStore();
 
+  // Check for token2 in URL query parameters for single sign-on
+  const token = to.query.token2 as string;
+  if (token) {
+    localStorage.setItem("jwt", token);
+  }
+
   // this will only be null on first route
   if (from.name == null) {
     try {

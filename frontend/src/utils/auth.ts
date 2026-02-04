@@ -13,10 +13,10 @@ export function parseToken(token: string) {
   document.cookie = `auth=${token}; Path=/; SameSite=Strict;`;
 
   localStorage.setItem("jwt", token);
-
+  console.log('jwtDecode', data)
   const authStore = useAuthStore();
   authStore.jwt = token;
-  authStore.setUser(data.user);
+  authStore.setUser(data.user || data.User);
 
   // proxy auth with custom logout subject to unknown external timeout
   if (logoutPage !== "/login" && authMethod === "proxy") {
@@ -108,27 +108,6 @@ export async function signup(username: string, password: string) {
 
   if (res.status !== 200) {
     const body = await res.text();
-    throw new StatusError(
-      body || `${res.status} ${res.statusText}`,
-      res.status
-    );
-  }
-}
-
-export async function validateToken(token: string) {
-  const res = await fetch(`${baseURL}/api/tokenValidate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ token }),
-  });
-
-  const body = await res.text();
-
-  if (res.status === 200) {
-    parseToken(body);
-  } else {
     throw new StatusError(
       body || `${res.status} ${res.statusText}`,
       res.status

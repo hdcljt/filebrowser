@@ -202,61 +202,6 @@ func renewHandler(tokenExpireTime time.Duration) handleFunc {
 	})
 }
 
-type tokenValidateBody struct {
-	Token string `json:"token"`
-}
-
-func tokenValidateHandler(tokenExpireTime time.Duration) handleFunc {
-	return func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
-		if r.Body == nil {
-			return http.StatusBadRequest, nil
-		}
-
-		info := &tokenValidateBody{}
-		err := json.NewDecoder(r.Body).Decode(info)
-		if err != nil {
-			return http.StatusBadRequest, err
-		}
-
-		if info.Token == "" {
-			return http.StatusBadRequest, nil
-		}
-
-		// Validate the token (decryption logic will be implemented here)
-		user, err := validateToken(info.Token, d)
-		if err != nil {
-			return http.StatusForbidden, err
-		}
-
-		return printToken(w, r, d, user, tokenExpireTime)
-	}
-}
-
-func validateToken(token string, d *data) (*users.User, error) {
-	// Parse and validate the token
-	claims := &authToken{}
-
-	// Parse the token without validating the signature (for demonstration purposes)
-	// In a real implementation, you would validate the signature with a secret key
-	_, _, err := new(jwt.Parser).ParseUnverified(token, claims)
-	if err != nil {
-		return nil, err
-	}
-
-	// Validate the token claims
-	if claims.User.ID == 0 {
-		return nil, fberrors.ErrNotExist
-	}
-
-	// Get the user from the database
-	user, err := d.store.Users.Get(d.server.Root, claims.User.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
 func printToken(w http.ResponseWriter, _ *http.Request, d *data, user *users.User, tokenExpirationTime time.Duration) (int, error) {
 	claims := &authToken{
 		User: userInfo{
