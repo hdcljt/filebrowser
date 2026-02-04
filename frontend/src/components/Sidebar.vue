@@ -50,7 +50,7 @@
         </button>
       </div>
       <button
-        v-if="canLogout"
+        v-if="false"
         @click="logout"
         class="action"
         id="logout"

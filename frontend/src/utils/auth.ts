@@ -9,14 +9,14 @@ import { setSafeTimeout } from "@/api/utils";
 export function parseToken(token: string) {
   // falsy or malformed jwt will throw InvalidTokenError
   const data = jwtDecode<JwtPayload & { user: IUser }>(token);
+  console.log('jwtDecode data:', data)
 
   document.cookie = `auth=${token}; Path=/; SameSite=Strict;`;
-
   localStorage.setItem("jwt", token);
-  console.log('jwtDecode', data)
+
   const authStore = useAuthStore();
   authStore.jwt = token;
-  authStore.setUser(data.user || data.User);
+  authStore.setUser(data.user);
 
   // proxy auth with custom logout subject to unknown external timeout
   if (logoutPage !== "/login" && authMethod === "proxy") {
@@ -124,6 +124,9 @@ export function logout(reason?: string) {
   localStorage.setItem("jwt", "");
   if (noAuth) {
     window.location.reload();
+  } else if (reason === "inactivity") {
+    // When token expires due to inactivity, redirect to desktop page
+    window.location.href = "http://localhost:6182/desktop/";
   } else if (logoutPage !== "/login") {
     document.location.href = `${logoutPage}`;
   } else {
