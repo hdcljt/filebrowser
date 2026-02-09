@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import legacy from "@vitejs/plugin-legacy";
-import { compression } from "vite-plugin-compression2";
+// import { compression } from "vite-plugin-compression2";
 
 const plugins = [
   vue(),
@@ -14,7 +14,7 @@ const plugins = [
     // defaults already drop IE support
     targets: ["defaults"],
   }),
-  compression({ include: /\.js$/i, deleteOriginalAssets: true }),
+  // compression({ include: /\.js$/i, deleteOriginalAssets: true }),
 ];
 
 const resolve = {
@@ -47,11 +47,15 @@ export default defineConfig(({ command }) => {
     return {
       plugins,
       resolve,
-      base: "",
+      // base: "",
+      base: "/filebrowser/",
       build: {
+        outDir: "filebrowser",
+        emptyOutDir: true,
         rollupOptions: {
           input: {
-            index: path.resolve(__dirname, "./public/index.html"),
+            // index: path.resolve(__dirname, "./public/index.html"),
+            index: path.resolve(__dirname, "./index.html"),
           },
           output: {
             manualChunks: (id) => {
@@ -72,7 +76,8 @@ export default defineConfig(({ command }) => {
           if (hostType === "js") {
             return { runtime: `window.__prependStaticUrl("${filename}")` };
           } else if (hostType === "html") {
-            return `[{[ .StaticURL ]}]/${filename}`;
+            // return `[{[ .StaticURL ]}]/${filename}`;
+            return `/filebrowser/${filename}`;
           } else {
             return { relative: true };
           }
