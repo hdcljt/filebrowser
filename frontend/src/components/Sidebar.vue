@@ -4,7 +4,7 @@
     <template v-if="isLoggedIn">
       <button @click="toAccountSettings" class="action">
         <i class="material-icons">person</i>
-        <span>{{ user.username }}</span>
+        <span>{{ displayUsername }}</span>
       </button>
       <button
         class="action"
@@ -161,6 +161,15 @@ export default {
     disableExternal: () => disableExternal,
     disableUsedPercentage: () => disableUsedPercentage,
     canLogout: () => !noAuth && (loginPage || logoutPage !== "/login"),
+    displayUsername() {
+      if (!this.user) return "";
+      // Get username from URL query parameters
+      const queryUsername = this.$route.query.username;
+      if (queryUsername) {
+        return `${this.user.username}(${queryUsername})`;
+      }
+      return this.user.username;
+    },
   },
   methods: {
     ...mapActions(useLayoutStore, ["closeHovers", "showHover"]),

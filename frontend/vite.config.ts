@@ -32,13 +32,16 @@ export default defineConfig(({ command }) => {
       resolve,
       server: {
         proxy: {
-          "/api/command": {
+          "/fb/api/command": {
             // target: "ws://127.0.0.1:8080",
             target: "ws://10.162.205.13:8093",
             ws: true,
           },
           // "/api": "http://127.0.0.1:8080",
-          "/api": "http://10.162.205.13:8093",
+          "/fb/api": {
+            target: "http://10.162.205.13:8093",
+            rewrite: (path) => path.replace(/^\/fb\/api/, "/api"),
+          },
         },
       },
     };
