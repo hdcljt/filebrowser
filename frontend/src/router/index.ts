@@ -12,7 +12,7 @@ import ProfileSettings from "@/views/settings/Profile.vue";
 import Shares from "@/views/settings/Shares.vue";
 import Errors from "@/views/Errors.vue";
 import { useAuthStore } from "@/stores/auth";
-import { baseURL, name } from "@/utils/constants";
+import { name, staticURL } from "@/utils/constants";
 import i18n from "@/i18n";
 import { recaptcha, loginPage } from "@/utils/constants";
 import { login, validateLogin } from "@/utils/auth";
@@ -173,7 +173,7 @@ async function initAuth() {
 }
 
 const router = createRouter({
-  history: createWebHistory(baseURL),
+  history: createWebHistory(staticURL),
   routes,
 });
 
