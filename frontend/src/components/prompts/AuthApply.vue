@@ -1,41 +1,26 @@
 <template>
   <div class="card floating" id="auth-apply">
     <div class="card-title">
-      <h2>{{ t("prompts.authApply.title") }}</h2>
+      <h2>下载授权</h2>
     </div>
 
     <div class="card-content">
-      <div class="warning">
+      <div class="warning" v-if="showWarning">
         <span class="warning-text">{{ remainingTime }}秒后窗口将自动关闭，请尽快操作。</span>
         <button class="close-warning" @click="hideWarning">×</button>
       </div>
 
       <div class="form-group">
-        <label>{{ t("prompts.authApply.mode") }}</label>
-        <div class="radio-group">
-          <label>
-            <input type="radio" v-model="authMode" value="sms" checked />
-            短信验证码
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>{{ t("prompts.authApply.approver") }} *</label>
+        <label><span class="required">*</span>选择审批人：</label>
         <select v-model="approver">
-          <option value="ty_test1">ty_test1 (18251883836)</option>
-          <option value="ty_test2">ty_test2 (13800138000)</option>
-          <option value="ty_test3">ty_test3 (13900139000)</option>
+          <option value="ty_test1">吴飞鹏 (18251883836)</option>
+          <option value="ty_test2">张晓明 (13800138000)</option>
+          <option value="ty_test3">李丽 (13900139000)</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>手机号:</label>
-        <div class="phone-info">{{ phoneNumber }}</div>
-      </div>
-
-      <div class="form-group">
-        <label>{{ t("prompts.authApply.reason") }} *</label>
+        <label><span class="required">*</span>请选择申请原因类型：</label>
         <select v-model="reasonType">
           <option value="">请选择</option>
           <option value="business">业务需求</option>
@@ -44,21 +29,27 @@
         </select>
       </div>
 
-      <div class="form-group">
-        <label>{{ t("prompts.authApply.reason") }}详情:</label>
-        <textarea v-model="reason" rows="4" :placeholder="t('prompts.authApply.reasonPlaceholder')"></textarea>
+      <div class="form-group" v-if="reasonType === 'other'">
+        <label><span class="required">*</span>自定义原因：</label>
+        <textarea 
+          v-model="customReason" 
+          rows="2" 
+          placeholder="请输入具体原因"
+          class="input input--block"
+        ></textarea>
       </div>
 
       <div class="form-group">
-        <label>短信验证码 *</label>
-        <div class="code-input">
+        <label><span class="required">*</span>短信验证码：</label>
+        <div class="code-input-container">
           <input 
             type="text" 
             v-model="verificationCode" 
             placeholder="请输入短信验证码"
+            class="input input--block"
           />
           <button 
-            class="button get-code-button" 
+            class="button" 
             @click="getVerificationCode"
             :disabled="isGettingCode || countdown > 0"
           >
@@ -67,35 +58,32 @@
         </div>
       </div>
 
-      <div class="form-actions">
-        <button class="button button--outline" @click="cancel">
-          取消
-        </button>
-        <button class="button button--primary" @click="submitApply">
-          提交验证
-        </button>
-      </div>
-
       <div v-if="error" class="error-message">
         {{ error }}
       </div>
+    </div>
+
+    <div class="card-action">
+      <button class="button button--flat button--grey" @click="cancel">
+        取消
+      </button>
+      <button class="button" @click="submitApply">
+        提交验证
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 
 const layoutStore = useLayoutStore();
-const { t } = useI18n();
 
 // 基本信息
-const authMode = ref("sms");
 const approver = ref("ty_test1");
 const reasonType = ref("");
-const reason = ref("");
+const customReason = ref("");
 const verificationCode = ref("");
 
 // 验证码相关
@@ -109,31 +97,26 @@ const showWarning = ref(true);
 let countdownTimer: number | null = null;
 let warningTimer: number | null = null;
 
-// 审批人手机号映射
-const approverPhones: Record<string, string> = {
-  ty_test1: "18251883836",
-  ty_test2: "13800138000",
-  ty_test3: "13900139000"
-};
-
-// 计算当前选中审批人的手机号
-const phoneNumber = computed(() => {
-  return approverPhones[approver.value] || "";
-});
-
 // 隐藏警告
 const hideWarning = () => {
   showWarning.value = false;
+  // 停止自动关闭倒计时
+  if (warningTimer) {
+    clearInterval(warningTimer);
+    warningTimer = null;
+  }
 };
 
 // 开始倒计时
 const startCountdown = () => {
+  // 验证码倒计时
   countdownTimer = window.setInterval(() => {
     if (countdown.value > 0) {
       countdown.value--;
     }
   }, 1000);
 
+  // 自动关闭倒计时
   warningTimer = window.setInterval(() => {
     if (remainingTime.value > 0) {
       remainingTime.value--;
@@ -173,15 +156,14 @@ const getVerificationCode = async () => {
   try {
     // 模拟获取验证码的API调用
     console.log("获取验证码:", {
-      approver: approver.value,
-      phone: phoneNumber.value
+      approver: approver.value
     });
 
     // 模拟成功响应
     setTimeout(() => {
       isGettingCode.value = false;
       countdown.value = 60;
-      alert("验证码已发送至" + phoneNumber.value);
+      alert("验证码已发送");
     }, 1000);
   } catch (err) {
     isGettingCode.value = false;
@@ -197,8 +179,13 @@ const submitApply = () => {
     return;
   }
 
-  if (!reasonType) {
+  if (!reasonType.value) {
     error.value = "请选择申请原因类型";
+    return;
+  }
+
+  if (reasonType.value === 'other' && !customReason.value.trim()) {
+    error.value = "请输入自定义原因";
     return;
   }
 
@@ -208,10 +195,9 @@ const submitApply = () => {
   }
 
   const authData = {
-    mode: authMode.value,
     approver: approver.value,
     reasonType: reasonType.value,
-    reason: reason.value,
+    customReason: reasonType.value === 'other' ? customReason.value : '',
     code: verificationCode.value
   };
 
@@ -235,121 +221,153 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 整体容器样式 */
+#auth-apply {
+  max-width: 25em;
+  width: 90%;
+  max-height: 95%;
+}
+
+/* 内容区域样式 */
+.card-content > *:first-child:not(.warning) {
+  padding-top: 1.5em;
+}
+
+.card-content > *:last-child {
+  padding-bottom: 1.5em;
+}
+
+/* 警告框样式 */
 .warning {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: var(--warning-bg, #2a2a1e);
+  color: var(--warning-text, #d48806);
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #ffeaa7;
-}
-
-.warning-text {
-  font-size: 0.875rem;
+  border: 1px solid var(--warning-border, #4d4d33);
+  margin-top: 0 !important;
+  padding-top: 0.5rem !important;
 }
 
 .close-warning {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1rem;
   cursor: pointer;
-  color: #856404;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.radio-group label {
+  color: var(--warning-text, #d48806);
+  padding: 0;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+/* 表单组样式 */
+.form-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 0.5rem;
 }
 
-select, textarea, input {
+/* 标签样式 */
+label {
+  display: inline-block;
+  font-size: 14px;
+  color: var(--textSecondary);
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+/* 必填项星号样式 */
+.required {
+  color: #ff4d4f;
+  margin-right: 4px;
+}
+
+/* 输入控件样式 */
+select, input, textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--borderPrimary);
+  border-radius: 2px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background-color: var(--surfacePrimary);
+  color: var(--textSecondary);
+  margin-bottom: 0;
+}
+
+select, input {
+  height: 36px;
 }
 
 textarea {
-  resize: vertical;
+  min-height: 60px;
+  resize: none;
 }
 
-.phone-info {
-  padding: 0.5rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-}
-
-.code-input {
+/* 验证码输入区域样式 */
+.code-input-container {
+  width: 100%;
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.code-input input {
+.code-input-container input {
   flex: 1;
 }
 
-.get-code-button {
-  white-space: nowrap;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.get-code-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.button--outline {
-  background-color: transparent;
-  border: 1px solid #007bff;
-  color: #007bff;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.button--primary {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
+/* 错误消息样式 */
 .error-message {
-  color: #dc3545;
+  color: var(--error-color, #ff4d4f);
   margin-top: 1rem;
-  font-size: 0.875rem;
+  font-size: 14px;
+}
+
+/* 操作按钮区域样式 */
+.card-action {
+  text-align: right;
+  padding: 1em 1em;
+  border-top: 1px solid var(--borderPrimary);
+}
+
+.card-action > * {
+  margin-left: 0.5rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  #auth-apply {
+    width: 90%;
+  }
+  
+  .form-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  label {
+    width: 100%;
+  }
+  
+  select, input, textarea {
+    width: 100%;
+  }
+  
+  .card-action {
+    text-align: center;
+  }
+  
+  .card-action > * {
+    margin: 0.25rem;
+  }
 }
 </style>
