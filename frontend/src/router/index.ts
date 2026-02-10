@@ -1,6 +1,6 @@
 import type { RouteLocation } from "vue-router";
 import { createRouter, createWebHistory } from "vue-router";
-import Login from "@/views/Login.vue";
+// import Login from "@/views/Login.vue"; // 注释掉Login页面，弃用
 import Layout from "@/views/Layout.vue";
 import Files from "@/views/Files.vue";
 import Share from "@/views/Share.vue";
@@ -33,11 +33,11 @@ const titles = {
 };
 
 const routes = [
-  {
-    path: "/login",
-    name: "Login",
-    component: Login,
-  },
+  // {
+  //   path: "/login",
+  //   name: "Login",
+  //   component: Login,
+  // }, // 注释掉Login路由，弃用
   {
     path: "/share",
     component: Layout,
@@ -205,11 +205,8 @@ router.beforeResolve(async (to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!authStore.isLoggedIn) {
-      next({
-        path: "/login",
-        query: { redirect: to.fullPath },
-      });
-
+      // 未登录时跳转到指定地址
+      window.location.href = "http://10.162.205.13/desktop/";
       return;
     }
 
