@@ -935,48 +935,18 @@ const download = async () => {
     const authStatus = await authApi.checkAuthStatus();
 
     if (authStatus.needAuth) {
-      if (!authStatus.hasApplied) {
-        // 显示授权申请页面
-        layoutStore.showHover({
-          prompt: "authApply",
-          confirm: async (authData: any) => {
-            layoutStore.closeHovers();
-            
-            // 提交授权申请
-            const applyResult = await authApi.submitAuthApply(authData);
-            
-            if (applyResult.success) {
-              // 显示授权认证页面
-              layoutStore.showHover({
-                prompt: "authVerify",
-                confirm: async (verifyData: any) => {
-                  layoutStore.closeHovers();
-                  
-                  // 验证授权码
-                  const verifyResult = await authApi.verifyAuthCode(verifyData.code);
-                  
-                  if (verifyResult.success) {
-                    // 授权成功，继续下载
-                    performDownload();
-                  } else {
-                    alert(verifyResult.message || "授权失败");
-                  }
-                },
-              });
-            } else {
-              alert(applyResult.message || "授权申请失败");
-            }
-          },
-        });
-      } else {
-        // 显示授权认证页面
-        layoutStore.showHover({
-          prompt: "authVerify",
-          confirm: async (verifyData: any) => {
-            layoutStore.closeHovers();
-            
+      // 显示授权申请页面（包含获取验证码和提交验证）
+      layoutStore.showHover({
+        prompt: "authApply",
+        confirm: async (authData: any) => {
+          layoutStore.closeHovers();
+          
+          // 提交授权申请和验证
+          const applyResult = await authApi.submitAuthApply(authData);
+          
+          if (applyResult.success) {
             // 验证授权码
-            const verifyResult = await authApi.verifyAuthCode(verifyData.code);
+            const verifyResult = await authApi.verifyAuthCode(authData.code);
             
             if (verifyResult.success) {
               // 授权成功，继续下载
@@ -984,9 +954,11 @@ const download = async () => {
             } else {
               alert(verifyResult.message || "授权失败");
             }
-          },
-        });
-      }
+          } else {
+            alert(applyResult.message || "授权申请失败");
+          }
+        },
+      });
       return;
     }
 
