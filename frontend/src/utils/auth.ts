@@ -127,7 +127,7 @@ export function logout(reason?: string) {
   } else if (reason === "inactivity") {
     // When token expires due to inactivity, redirect to desktop page
     // window.location.href = "http://localhost:6182/desktop/";
-    window.location.href = "http://10.162.205.13/desktop/";
+    window.location.href = "/desktop/";
   } else if (logoutPage !== "/login") {
     document.location.href = `${logoutPage}`;
   } else {

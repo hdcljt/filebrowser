@@ -206,7 +206,7 @@ router.beforeResolve(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!authStore.isLoggedIn) {
       // 未登录时跳转到指定地址
-      window.location.href = "http://10.162.205.13/desktop/";
+      window.location.href = "/desktop/";
       return;
     }
 

@@ -1,6 +1,6 @@
 FROM nginx
 
-COPY ./filebrowser /usr/share/nginx/html/
+COPY ./filebrowser /usr/share/nginx/html/filebrowser
 
 # COPY ./nginx/server.pem /usr/share/nginx/ssl/server.pem
 # COPY ./nginx/server.key /usr/share/nginx/ssl/server.key
