@@ -346,6 +346,7 @@ import { useFileStore } from "@/stores/file";
 import { useLayoutStore } from "@/stores/layout";
 
 import { users, files as api } from "@/api";
+import * as authApi from "@/api/auth";
 import { enableExec } from "@/utils/constants";
 import * as upload from "@/utils/upload";
 import css from "@/utils/css";
@@ -968,7 +969,21 @@ const windowsResize = throttle(() => {
   fillWindow();
 }, 100);
 
-const download = () => {
+const download = async () => {
+  if (fileStore.req === null) return;
+  console.log('xxxxxxxxxxxxxxx')
+  // 每次下载都显示授权申请页面
+  layoutStore.showHover({
+    prompt: "authApply",
+    confirm: (authData: any) => {
+      layoutStore.closeHovers();
+      // 授权成功，继续下载
+      performDownload();
+    },
+  });
+};
+
+const performDownload = () => {
   if (fileStore.req === null) return;
 
   if (
