@@ -1,6 +1,6 @@
 import type { RouteLocation } from "vue-router";
 import { createRouter, createWebHistory } from "vue-router";
-// import Login from "@/views/Login.vue"; // 注释掉Login页面，弃用
+import Login from "@/views/Login.vue";
 import Layout from "@/views/Layout.vue";
 import Files from "@/views/Files.vue";
 import Share from "@/views/Share.vue";
@@ -12,7 +12,7 @@ import ProfileSettings from "@/views/settings/Profile.vue";
 import Shares from "@/views/settings/Shares.vue";
 import Errors from "@/views/Errors.vue";
 import { useAuthStore } from "@/stores/auth";
-import { name, staticURL } from "@/utils/constants";
+import { baseURL, name } from "@/utils/constants";
 import i18n from "@/i18n";
 import { recaptcha, loginPage } from "@/utils/constants";
 import { login, validateLogin } from "@/utils/auth";
@@ -33,11 +33,11 @@ const titles = {
 };
 
 const routes = [
-  // {
-  //   path: "/login",
-  //   name: "Login",
-  //   component: Login,
-  // }, // 注释掉Login路由，弃用
+  {
+    path: "/login",
+    name: "Login",
+    component: Login,
+  },
   {
     path: "/share",
     component: Layout,
@@ -173,7 +173,7 @@ async function initAuth() {
 }
 
 const router = createRouter({
-  history: createWebHistory(staticURL),
+  history: createWebHistory(baseURL),
   routes,
 });
 
@@ -205,8 +205,11 @@ router.beforeResolve(async (to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!authStore.isLoggedIn) {
-      // 未登录时跳转到指定地址
-      window.location.href = "/desktop/";
+      next({
+        path: "/login",
+        query: { redirect: to.fullPath },
+      });
+
       return;
     }
 

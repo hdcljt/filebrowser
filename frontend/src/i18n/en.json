@@ -42,12 +42,17 @@
     "update": "Update",
     "upload": "Upload",
     "openFile": "Open file",
+    "openDirect": "View raw",
     "discardChanges": "Discard",
     "stopSearch": "Stop searching",
     "saveChanges": "Save changes",
     "editAsText": "Edit as Text",
     "increaseFontSize": "Increase font size",
-    "decreaseFontSize": "Decrease font size"
+    "decreaseFontSize": "Decrease font size",
+    "overrideAll": "Replace all files in destination folder",
+    "skipAll": "Skip all conflicting files",
+    "renameAll": "Rename all files (create a copy)",
+    "singleDecision": "Decide for each conflicting file"
   },
   "download": {
     "downloadFile": "Download File",
@@ -88,7 +93,8 @@
       "comma": "Comma (,)",
       "semicolon": "Semicolon (;)",
       "both": "Both (,) and (;)"
-    }
+    },
+    "fileEncoding": "File Encoding"
   },
   "help": {
     "click": "select file or directory",
@@ -160,40 +166,16 @@
     "optionalPassword": "Optional password",
     "resolution": "Resolution",
     "discardEditorChanges": "Are you sure you wish to discard the changes you've made?",
-    "authApply": {
-      "title": "Authorization Application",
-      "condition": "Authorization Condition",
-      "count": "Count",
-      "time": "Time",
-      "mode": "Authorization Mode",
-      "remote": "Remote",
-      "approver": "Approver",
-      "reason": "Reason",
-      "reasonPlaceholder": "Please enter the reason for application",
-      "submit": "Submit Application",
-      "reasonRequired": "Reason is required"
-    },
-    "authVerify": "Authorization Verification",
-    "authApplySuccess": "Authorization application submitted successfully",
-    "authVerifySuccess": "Authorization verification successful",
-    "authVerifyFailed": "Authorization verification failed"
-  },
-  "auth": {
-    "condition": "Authorization Condition",
-    "timeDuration": "Authorization Duration",
-    "approver": "Approver",
-    "reason": "Reason for Application",
-    "submitAuthApply": "Submit Application",
-    "verificationCode": "Verification Code",
-    "getCode": "Get Code",
-    "submitAuthVerify": "Submit Verification",
-    "needAuth": "Authorization Required",
-    "hasApplied": "Application Submitted",
-    "isApproved": "Authorization Approved",
-    "authExpired": "Authorization Expired",
-    "authCheckFailed": "Failed to check authorization status",
-    "authApplyFailed": "Failed to submit authorization application",
-    "authVerifyFailed": "Failed to verify authorization code"
+    "replaceOrSkip": "Replace or skip files",
+    "resolveConflict": "Which files do you want to keep?",
+    "singleConflictResolve": "If you select both versions, a number will be added to the name of the copied file.",
+    "fastConflictResolve": "The destination folder there are {count} files with same name.",
+    "uploadingFiles": "Uploading files",
+    "filesInOrigin": "Files in origin",
+    "filesInDest": "Files in destination",
+    "override": "Overwrite",
+    "skip": "Skip",
+    "forbiddenError": "Forbidden Error"
   },
   "search": {
     "images": "Images",

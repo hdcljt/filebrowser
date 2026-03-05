@@ -52,8 +52,6 @@
       </form>
     </div>
 
-    <!-- 密码更改功能已隐藏 -->
-    <!--
     <div v-if="!noAuth" class="column">
       <form
         class="card"
@@ -100,7 +98,6 @@
         </div>
       </form>
     </div>
-    -->
   </div>
 </template>
 
@@ -121,12 +118,16 @@ const { t } = useI18n();
 const $showSuccess = inject<IToastSuccess>("$showSuccess")!;
 const $showError = inject<IToastError>("$showError")!;
 
-// 密码相关变量（已注释掉，因为密码更改功能已隐藏）
-/*
 const password = ref<string>("");
 const passwordConf = ref<string>("");
 const currentPassword = ref<string>("");
 const isCurrentPasswordRequired = ref<boolean>(false);
+const hideDotfiles = ref<boolean>(false);
+const singleClick = ref<boolean>(false);
+const redirectAfterCopyMove = ref<boolean>(false);
+const dateFormat = ref<boolean>(false);
+const locale = ref<string>("");
+const aceEditorTheme = ref<string>("");
 
 const passwordClass = computed(() => {
   const baseClass = "input input--block";
@@ -140,6 +141,21 @@ const passwordClass = computed(() => {
   }
 
   return `${baseClass} input--red`;
+});
+
+onMounted(async () => {
+  layoutStore.loading = true;
+  if (authStore.user === null) return false;
+  locale.value = authStore.user.locale;
+  hideDotfiles.value = authStore.user.hideDotfiles;
+  singleClick.value = authStore.user.singleClick;
+  redirectAfterCopyMove.value = authStore.user.redirectAfterCopyMove;
+  dateFormat.value = authStore.user.dateFormat;
+  aceEditorTheme.value = authStore.user.aceEditorTheme;
+  layoutStore.loading = false;
+  isCurrentPasswordRequired.value = authMethod == "json";
+
+  return true;
 });
 
 const updatePassword = async (event: Event) => {
@@ -169,27 +185,6 @@ const updatePassword = async (event: Event) => {
     password.value = passwordConf.value = "";
   }
 };
-*/
-const hideDotfiles = ref<boolean>(false);
-const singleClick = ref<boolean>(false);
-const redirectAfterCopyMove = ref<boolean>(false);
-const dateFormat = ref<boolean>(false);
-const locale = ref<string>("");
-const aceEditorTheme = ref<string>("");
-
-onMounted(async () => {
-  layoutStore.loading = true;
-  if (authStore.user === null) return false;
-  locale.value = authStore.user.locale;
-  hideDotfiles.value = authStore.user.hideDotfiles;
-  singleClick.value = authStore.user.singleClick;
-  redirectAfterCopyMove.value = authStore.user.redirectAfterCopyMove;
-  dateFormat.value = authStore.user.dateFormat;
-  aceEditorTheme.value = authStore.user.aceEditorTheme;
-  layoutStore.loading = false;
-
-  return true;
-});
 const updateSettings = async (event: Event) => {
   event.preventDefault();
 

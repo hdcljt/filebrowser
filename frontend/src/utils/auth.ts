@@ -12,6 +12,7 @@ export function parseToken(token: string) {
   console.log('jwtDecode data:', data)
 
   document.cookie = `auth=${token}; Path=/; SameSite=Strict;`;
+
   localStorage.setItem("jwt", token);
 
   const authStore = useAuthStore();

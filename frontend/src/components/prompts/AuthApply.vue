@@ -150,29 +150,47 @@ const getVerificationCode = async () => {
     return;
   }
 
+  if (!reasonType.value) {
+    error.value = "请选择申请原因类型";
+    return;
+  }
+
+  if (reasonType.value === 'other' && !customReason.value.trim()) {
+    error.value = "请输入自定义原因";
+    return;
+  }
+
   isGettingCode.value = true;
   error.value = "";
 
   try {
-    // 模拟获取验证码的API调用
-    console.log("获取验证码:", {
-      approver: approver.value
-    });
+    // 调用授权申请接口
+    const applyData = {
+      approver: approver.value,
+      reasonType: reasonType.value,
+      customReason: reasonType.value === 'other' ? customReason.value : ''
+    };
 
-    // 模拟成功响应
-    setTimeout(() => {
-      isGettingCode.value = false;
-      countdown.value = 60;
-      alert("验证码已发送");
-    }, 1000);
-  } catch (err) {
+    const response = await import('@/api/auth').then(m => m.submitAuthApply(applyData));
+    
+    if (response.success) {
+      // 模拟成功响应
+      setTimeout(() => {
+        isGettingCode.value = false;
+        countdown.value = 60;
+        alert("验证码已发送");
+      }, 1000);
+    } else {
+      throw new Error(response.message || "获取验证码失败");
+    }
+  } catch (err: any) {
     isGettingCode.value = false;
-    error.value = "获取验证码失败，请重试";
+    error.value = err.message || "获取验证码失败，请重试";
   }
 };
 
 // 提交申请
-const submitApply = () => {
+const submitApply = async () => {
   // 验证必填字段
   if (!approver.value) {
     error.value = "请选择审批人";
@@ -201,7 +219,19 @@ const submitApply = () => {
     code: verificationCode.value
   };
 
-  layoutStore.currentPrompt?.confirm(authData);
+  try {
+    // 调用授权认证接口
+    const response = await import('@/api/auth').then(m => m.verifyAuthCode(verificationCode.value));
+    
+    if (response.success) {
+      // 认证成功，关闭弹窗并继续下载
+      layoutStore.currentPrompt?.confirm(authData);
+    } else {
+      throw new Error(response.message || "授权认证失败");
+    }
+  } catch (err: any) {
+    error.value = err.message || "授权认证失败，请重试";
+  }
 };
 
 // 取消
