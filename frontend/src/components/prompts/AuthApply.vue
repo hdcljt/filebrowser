@@ -13,9 +13,7 @@
       <div class="form-group">
         <label><span class="required">*</span>选择审批人：</label>
         <select v-model="approver">
-          <option value="ty_test1">吴飞鹏 (18251883836)</option>
-          <option value="ty_test2">张晓明 (13800138000)</option>
-          <option value="ty_test3">李丽 (13900139000)</option>
+          <option value="wufeipeng">吴飞鹏 (18251883836)</option>
         </select>
       </div>
 
@@ -78,11 +76,15 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 
+const props = defineProps<{
+  paths?: string[]
+}>();
+
 const layoutStore = useLayoutStore();
 
 // 基本信息
-const approver = ref("ty_test1");
-const reasonType = ref("");
+const approver = ref("wufeipeng");
+const reasonType = ref("personal");
 const customReason = ref("");
 const verificationCode = ref("");
 
@@ -90,6 +92,7 @@ const verificationCode = ref("");
 const countdown = ref(0);
 const isGettingCode = ref(false);
 const error = ref("");
+const requestId = ref("");
 
 // 倒计时相关
 const remainingTime = ref(3600);
@@ -166,20 +169,24 @@ const getVerificationCode = async () => {
   try {
     // 调用授权申请接口
     const applyData = {
-      approver: approver.value,
-      reasonType: reasonType.value,
-      customReason: reasonType.value === 'other' ? customReason.value : ''
+      selectedApprovers: [approver.value],
+      authMode: 'remoteAuth',
+      description: reasonType.value === 'other' ? customReason.value : reasonType.value,
+      paths: props.paths || [],
     };
-
+    console.log('applyData:', applyData);
     const response = await import('@/api/auth').then(m => m.submitAuthApply(applyData));
-    
+    console.log('response:', response);
+
     if (response.success) {
-      // 模拟成功响应
-      setTimeout(() => {
-        isGettingCode.value = false;
-        countdown.value = 60;
-        alert("验证码已发送");
-      }, 1000);
+      // 存储返回的requestId
+      if (response.requestId) {
+        requestId.value = response.requestId;
+      }
+
+      isGettingCode.value = false;
+      countdown.value = 60;
+      alert("验证码已发送");
     } else {
       throw new Error(response.message || "获取验证码失败");
     }
@@ -213,16 +220,16 @@ const submitApply = async () => {
   }
 
   const authData = {
-    approver: approver.value,
-    reasonType: reasonType.value,
-    customReason: reasonType.value === 'other' ? customReason.value : '',
-    code: verificationCode.value
+    requestId: requestId.value,
+    passCode: verificationCode.value,
   };
 
   try {
     // 调用授权认证接口
-    const response = await import('@/api/auth').then(m => m.verifyAuthCode(verificationCode.value));
-    
+    console.log('authData:', authData);
+    const response = await import('@/api/auth').then(m => m.verifyAuthCode(authData));
+    console.log('response:', response);
+
     if (response.success) {
       // 认证成功，关闭弹窗并继续下载
       layoutStore.currentPrompt?.confirm(authData);

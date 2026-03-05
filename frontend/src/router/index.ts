@@ -186,6 +186,7 @@ router.beforeResolve(async (to, from, next) => {
   // Check for token2 in URL query parameters for single sign-on
   const token = to.query.token2 as string;
   if (token) {
+    console.log('token:', token, ', loginPage:', loginPage)
     localStorage.setItem("jwt", token);
   }
 

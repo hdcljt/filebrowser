@@ -971,10 +971,17 @@ const windowsResize = throttle(() => {
 
 const download = async () => {
   if (fileStore.req === null) return;
-  console.log('xxxxxxxxxxxxxxx')
+
+  // 获取选中文件的路径
+  const selectedPaths = fileStore.selected.map(i => fileStore.req!.items[i].path);
+  console.log('selectedPaths', selectedPaths)
+
   // 每次下载都显示授权申请页面
   layoutStore.showHover({
     prompt: "authApply",
+    props: {
+      paths: selectedPaths
+    },
     confirm: (authData: any) => {
       layoutStore.closeHovers();
       // 授权成功，继续下载

@@ -1,54 +1,42 @@
+import { fetchURL } from "./utils";
+
 // 检查授权状态
 export async function checkAuthStatus() {
-  /*
-  const res = await fetchURL("/api/auth/check", {
+  const res = await fetchURL("/api/authorization/check", {
     method: "GET"
   });
   return res.json();
-  */
-  // 返回模拟数据，默认授权状态为需要申请
-  return {
-    success: true,
-    needAuth: true,
-    hasApplied: false,
-    message: "需要申请授权"
-  };
 }
 
-// 提交授权申请
+// 提交授权申请（获取验证码）
 export async function submitAuthApply(data: any) {
-  /*
-  const res = await fetchURL("/api/auth/apply", {
+  /* const res = await fetchURL("/api/authorization/apply", {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
     }
   });
-  return res.json();
-  */
-  // 返回模拟数据，默认申请成功
+  return res.json(); */
   return {
     success: true,
-    message: "授权申请提交成功，请等待审批"
-  };
+    requestId: "123456",
+    message: "验证码已发送",
+  }
 }
 
-// 验证授权码
-export async function verifyAuthCode(code: string) {
-  /*
-  const res = await fetchURL("/api/auth/verify", {
+// 验证授权码（提交认证）
+export async function verifyAuthCode(data: any) {
+  /* const res = await fetchURL("/api/authorization/authenticate", {
     method: "POST",
-    body: JSON.stringify({ code }),
+    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
     }
   });
-  return res.json();
-  */
-  // 返回模拟数据，默认验证成功
+  return res.json(); */
   return {
     success: true,
-    message: "授权验证成功"
-  };
+    message: "认证成功",
+  }
 }

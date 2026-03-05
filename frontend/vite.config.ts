@@ -33,10 +33,12 @@ export default defineConfig(({ command }) => {
       server: {
         proxy: {
           "/api/command": {
-            target: "ws://127.0.0.1:8080",
+            // target: "ws://127.0.0.1:8080",
+            target: "ws://39.156.1.30:32193",
             ws: true,
           },
-          "/api": "http://127.0.0.1:8080",
+          // "/api": "http://127.0.0.1:8080",
+          "/api": "http://39.156.1.30:32193",
         },
       },
     };

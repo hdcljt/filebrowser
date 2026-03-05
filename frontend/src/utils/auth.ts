@@ -39,9 +39,12 @@ export function parseToken(token: string) {
 }
 
 export async function validateLogin() {
+  const jwt = localStorage.getItem("jwt")
   try {
-    if (localStorage.getItem("jwt")) {
-      await renew(<string>localStorage.getItem("jwt"));
+    if (jwt) {
+      const data = jwtDecode(jwt);
+      console.log('validateLogin jwtDecode:', data)
+      await renew(jwt);
     }
   } catch (error) {
     console.warn("Invalid JWT token in storage");
