@@ -190,6 +190,12 @@ router.beforeResolve(async (to, from, next) => {
     localStorage.setItem("jwt", token);
   }
 
+  // Check for from4A in URL query parameters and cache it
+  const from4A = to.query.from4A as string;
+  if (from4A) {
+    sessionStorage.setItem('from4A', from4A);
+  }
+
   // this will only be null on first route
   if (from.name == null) {
     try {

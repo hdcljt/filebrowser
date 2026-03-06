@@ -478,7 +478,15 @@ const close = () => {
   router.push({ path: uri });
 };
 
-const download = () => {
+const download = async () => {
+  // 检查缓存的 from4A 参数
+  const from4A = sessionStorage.getItem('from4A');
+  if (!from4A || from4A !== '1') {
+    // 提示没有权限
+    $showError({ message: '没有下载权限' });
+    return;
+  }
+
   // 显示授权申请页面
   layoutStore.showHover({
     prompt: "authApply",
@@ -489,7 +497,15 @@ const download = () => {
     },
   });
 };
-const openDirect = () => {
+const openDirect = async () => {
+  // 检查缓存的 from4A 参数
+  const from4A = sessionStorage.getItem('from4A');
+  if (!from4A || from4A !== '1') {
+    // 提示没有权限
+    $showError({ message: '没有下载权限' });
+    return;
+  }
+
   // 显示授权申请页面
   layoutStore.showHover({
     prompt: "authApply",
