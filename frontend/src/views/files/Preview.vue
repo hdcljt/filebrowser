@@ -483,7 +483,7 @@ const download = async () => {
   const from4A = sessionStorage.getItem('from4A');
   if (!from4A || from4A !== '1') {
     // 提示没有权限
-    $showError({ message: '没有下载权限' });
+    $showError('没有下载权限');
     return;
   }
 
@@ -502,7 +502,7 @@ const openDirect = async () => {
   const from4A = sessionStorage.getItem('from4A');
   if (!from4A || from4A !== '1') {
     // 提示没有权限
-    $showError({ message: '没有下载权限' });
+    $showError('没有下载权限');
     return;
   }
 
