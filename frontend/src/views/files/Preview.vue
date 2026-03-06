@@ -132,23 +132,18 @@
             {{ $t("files.noPreview") }}
           </div>
           <div>
-            <a target="_blank" :href="downloadUrl" class="button button--flat">
+            <button @click="download" class="button button--flat">
               <div>
                 <i class="material-icons">file_download</i
                 >{{ $t("buttons.download") }}
               </div>
-            </a>
-            <a
-              target="_blank"
-              :href="previewUrl"
-              class="button button--flat"
-              v-if="!fileStore.req?.isDir"
-            >
+            </button>
+            <button @click="openDirect" class="button button--flat" v-if="!fileStore.req?.isDir">
               <div>
                 <i class="material-icons">open_in_new</i
                 >{{ $t("buttons.openFile") }}
               </div>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -483,8 +478,28 @@ const close = () => {
   router.push({ path: uri });
 };
 
-const download = () => window.open(downloadUrl.value);
-const openDirect = () => window.open(directUrl.value);
+const download = () => {
+  // 显示授权申请页面
+  layoutStore.showHover({
+    prompt: "authApply",
+    confirm: (authData: any) => {
+      layoutStore.closeHovers();
+      // 授权成功，继续下载
+      window.open(downloadUrl.value);
+    },
+  });
+};
+const openDirect = () => {
+  // 显示授权申请页面
+  layoutStore.showHover({
+    prompt: "authApply",
+    confirm: (authData: any) => {
+      layoutStore.closeHovers();
+      // 授权成功，继续打开
+      window.open(directUrl.value);
+    },
+  });
+};
 
 const editAsText = () => {
   router.push({ path: route.path, query: { edit: "true" } });
