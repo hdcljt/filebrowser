@@ -487,16 +487,30 @@ const download = async () => {
     return;
   }
 
-  // 显示授权申请页面
-  layoutStore.showHover({
-    prompt: "authApply",
-    confirm: (authData: any) => {
-      layoutStore.closeHovers();
-      // 授权成功，继续下载
-      window.open(downloadUrl.value);
-    },
-  });
+  // 先调用下载接口检查是否需要授权
+  const checkResult = await api.downloadCheck(fileStore.req!.url);
+  if (checkResult && (checkResult.needApply || checkResult.needAuth)) {
+    // 需要授权，弹出授权申请页面
+    layoutStore.showHover({
+      prompt: "authApply",
+      props: {
+        authData: checkResult
+      },
+      confirm: () => {
+        layoutStore.closeHovers();
+        // 授权成功，继续下载
+        window.open(downloadUrl.value);
+      },
+    });
+  } else if (checkResult && checkResult.error) {
+    // 其他错误
+    $showError(checkResult.error);
+  } else {
+    // 下载成功，直接下载
+    window.open(downloadUrl.value);
+  }
 };
+
 const openDirect = async () => {
   // 检查缓存的 from4A 参数
   const from4A = sessionStorage.getItem('from4A');
@@ -506,15 +520,28 @@ const openDirect = async () => {
     return;
   }
 
-  // 显示授权申请页面
-  layoutStore.showHover({
-    prompt: "authApply",
-    confirm: (authData: any) => {
-      layoutStore.closeHovers();
-      // 授权成功，继续打开
-      window.open(directUrl.value);
-    },
-  });
+  // 先调用下载接口检查是否需要授权
+  const checkResult = await api.downloadCheck(fileStore.req!.url);
+  if (checkResult && (checkResult.needApply || checkResult.needAuth)) {
+    // 需要授权，弹出授权申请页面
+    layoutStore.showHover({
+      prompt: "authApply",
+      props: {
+        authData: checkResult
+      },
+      confirm: () => {
+        layoutStore.closeHovers();
+        // 授权成功，继续打开
+        window.open(directUrl.value);
+      },
+    });
+  } else if (checkResult && checkResult.error) {
+    // 其他错误
+    $showError(checkResult.error);
+  } else {
+    // 成功，直接打开
+    window.open(directUrl.value);
+  }
 };
 
 const editAsText = () => {

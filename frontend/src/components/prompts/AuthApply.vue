@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, inject } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 
 const props = defineProps<{
@@ -94,6 +94,7 @@ const props = defineProps<{
 }>();
 
 const layoutStore = useLayoutStore();
+const $showSuccess = inject<(message: string) => void>("$showSuccess")!;
 
 // 基本信息
 const approver = ref("");
@@ -217,7 +218,7 @@ const getVerificationCode = async () => {
         // 重新获取成功
         isGettingCode.value = false;
         countdown.value = 60;
-        alert("验证码已重新发送");
+        $showSuccess("申请已重新发送，请等待审批");
       } else {
         throw new Error(resendResponse.message || "获取验证码失败");
       }
@@ -241,7 +242,7 @@ const getVerificationCode = async () => {
 
         isGettingCode.value = false;
         countdown.value = 60;
-        alert("验证码已发送");
+        $showSuccess("申请已发送，请等待审批人审批");
       } else {
         throw new Error(response.message || "获取验证码失败");
       }

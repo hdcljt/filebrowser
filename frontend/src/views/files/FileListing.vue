@@ -982,7 +982,7 @@ const download = async () => {
 
   // 获取选中文件的路径
   const selectedPaths = fileStore.selected.map(i => fileStore.req!.items[i].path);
-  const selectedURLs = fileStore.selected.map(i => fileStore.req!.items[i].url);
+  // const selectedURLs = fileStore.selected.map(i => fileStore.req!.items[i].url);
   console.log('selectedPaths', selectedPaths)
 
   // 先调用下载接口检查是否需要授权
@@ -999,7 +999,9 @@ const download = async () => {
         confirm: () => {
           layoutStore.closeHovers();
           // 授权成功后执行下载
-          api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+          if (fileStore.req) {
+            api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+          }
         },
       });
     } else if (checkResult && checkResult.error) {
@@ -1007,7 +1009,9 @@ const download = async () => {
       $showError(checkResult.error);
     } else {
       // 下载成功，直接执行下载
-      api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+      if (fileStore.req) {
+        api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+      }
     }
   } else {
     // 多文件或文件夹下载，显示格式选择弹窗
@@ -1053,7 +1057,7 @@ const download = async () => {
   }
 };
 
-const performDownload = () => {
+/* const performDownload = () => {
   if (fileStore.req === null) return;
 
   if (
@@ -1082,7 +1086,7 @@ const performDownload = () => {
       api.download(format, ...files);
     },
   });
-};
+}; */
 
 const switchView = async () => {
   layoutStore.closeHovers();
