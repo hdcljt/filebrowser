@@ -13,7 +13,9 @@
       <div class="form-group">
         <label><span class="required">*</span>选择审批人：</label>
         <select v-model="approver">
-          <option value="wufeipeng">吴飞鹏 (18251883836)</option>
+          <option v-for="opt in approverOptions" :key="opt.value" :value="opt.value">
+            {{ opt.label }}
+          </option>
         </select>
       </div>
 
@@ -73,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 
 const props = defineProps<{
@@ -94,10 +96,24 @@ const props = defineProps<{
 const layoutStore = useLayoutStore();
 
 // 基本信息
-const approver = ref("wufeipeng");
+const approver = ref("");
 const reasonType = ref("personal");
 const customReason = ref("");
 const verificationCode = ref("");
+
+// 动态计算 approvers 选项
+const approverOptions = computed(() => {
+  if (!props.authData?.approvers?.length) {
+    return [];
+  }
+  return props.authData.approvers.map(approverStr => {
+    const parts = approverStr.split('G|T');
+    return {
+      value: parts[0] || '',
+      label: parts.length >= 3 ? `${parts[1]} (${parts[2]})` : approverStr
+    };
+  });
+});
 
 // 验证码相关
 const countdown = ref(0);
@@ -178,16 +194,13 @@ const getVerificationCode = async () => {
   error.value = "";
 
   try {
-    // 从接口返回数据中提取 approver（截取 G|T 之前的部分）
-    // 例如: "yangjun_cpG|T杨军G|T15850591974" -> "yangjun_cp"
-    const approverFromApi = props.authData?.approvers?.[0]?.split('G|T')[0] || approver.value;
     // 从接口返回数据中获取 authMode（数组第一项）
     const authModeFromApi = props.authData?.authModes?.[0] || 'remoteAuth';
     // 从接口返回数据中获取 paths
     const pathsFromApi = props.authData?.path ? [props.authData.path] : [];
 
     console.log('[AuthApply] props.authData:', props.authData);
-    console.log('[AuthApply] approverFromApi:', approverFromApi);
+    console.log('[AuthApply] approver:', approver.value);
 
     // 判断是否需要重新获取验证码（有 requestId 且没有 approvers）
     if (requestId.value || props.authData?.requestId) {
@@ -211,7 +224,7 @@ const getVerificationCode = async () => {
     } else {
       // 首次获取验证码
       const applyData = {
-        selectedApprovers: [approverFromApi],
+        selectedApprovers: [approver.value],
         authMode: authModeFromApi,
         description: reasonType.value === 'other' ? customReason.value : reasonType.value,
         paths: pathsFromApi,
@@ -290,9 +303,12 @@ const cancel = () => {
   layoutStore.closeHovers();
 };
 
-// 组件挂载时开始倒计时
+// 组件挂载时开始倒计时并初始化 approver
 onMounted(() => {
   startCountdown();
+  if (approverOptions.value.length > 0) {
+    approver.value = approverOptions.value[0].value;
+  }
 });
 
 // 组件卸载时清除倒计时
