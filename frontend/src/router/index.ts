@@ -192,6 +192,7 @@ router.beforeResolve(async (to, from, next) => {
 
   // Check for from4A in URL query parameters and cache it
   const from4A = to.query.from4A as string;
+  console.log('from4A:', from4A)
   if (from4A) {
     sessionStorage.setItem('from4A', from4A);
   }

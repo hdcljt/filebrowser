@@ -73,6 +73,66 @@ export async function put(url: string, content = "") {
   return resourceAction(url, "PUT", content);
 }
 
+export async function downloadCheck(...files: string[]): Promise<{ needApply?: boolean; needAuth?: boolean; error?: string; path?: string; approvers?: string[]; authModes?: string[]; functionCode?: string; reason?: string; suggestUrl?: string } | null> {
+  const authStore = useAuthStore();
+  let url = `${baseURL}/api/raw`;
+
+  if (files.length === 1) {
+    url += removePrefix(files[0]) + "?";
+  } else {
+    let arg = "";
+    for (const file of files) {
+      arg += removePrefix(file) + ",";
+    }
+    arg = arg.substring(0, arg.length - 1);
+    arg = encodeURIComponent(arg);
+    url += `/?files=${arg}&`;
+  }
+
+  console.log("[downloadCheck] 请求 URL:", url);
+
+  try {
+    const response = await window.fetch(url, {
+      headers: {
+        "X-Auth": authStore.jwt,
+      },
+    });
+
+    console.log("[downloadCheck] 响应状态:", response.status);
+    console.log("[downloadCheck] Content-Type:", response.headers.get("Content-Type"));
+
+    const contentType = response.headers.get("Content-Type");
+
+    if (contentType && contentType.includes("application/json")) {
+      try {
+        const data = await response.json();
+        console.log("[downloadCheck] JSON 响应数据:", data);
+        if (data.needApply === true || data.needAuth === true || (data.error && data.error !== "")) {
+          return data;
+        }
+      } catch {
+        console.log("[downloadCheck] JSON 解析失败");
+      }
+    }
+
+    if (response.ok && (contentType?.startsWith("application/octet-stream") || contentType?.startsWith("application/zip"))) {
+      console.log("[downloadCheck] 响应为文件流，可以直接下载");
+      return null;
+    }
+
+    if (!response.ok) {
+      console.log("[downloadCheck] 响应失败，状态码:", response.status);
+      return { error: `下载失败: ${response.status}` };
+    }
+
+    console.log("[downloadCheck] 其他情况，返回 null");
+    return null;
+  } catch (e) {
+    console.error("[downloadCheck] 网络错误:", e);
+    return { error: "网络错误" };
+  }
+}
+
 export function download(format: any, ...files: string[]) {
   let url = `${baseURL}/api/raw`;
 

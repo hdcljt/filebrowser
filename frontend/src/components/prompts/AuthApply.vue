@@ -77,7 +77,18 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useLayoutStore } from "@/stores/layout";
 
 const props = defineProps<{
-  paths?: string[]
+  authData?: {
+    approvers?: string[]
+    authModes?: string[]
+    error?: string
+    needAuth?: boolean
+    needApply?: boolean
+    path?: string
+    functionCode?: string
+    reason?: string
+    requestId?: string
+    suggestUrl?: string
+  }
 }>();
 
 const layoutStore = useLayoutStore();
@@ -167,28 +178,60 @@ const getVerificationCode = async () => {
   error.value = "";
 
   try {
-    // 调用授权申请接口
-    const applyData = {
-      selectedApprovers: [approver.value],
-      authMode: 'remoteAuth',
-      description: reasonType.value === 'other' ? customReason.value : reasonType.value,
-      paths: props.paths || [],
-    };
-    console.log('applyData:', applyData);
-    const response = await import('@/api/auth').then(m => m.submitAuthApply(applyData));
-    console.log('response:', response);
+    // 从接口返回数据中提取 approver（截取 G|T 之前的部分）
+    // 例如: "yangjun_cpG|T杨军G|T15850591974" -> "yangjun_cp"
+    const approverFromApi = props.authData?.approvers?.[0]?.split('G|T')[0] || approver.value;
+    // 从接口返回数据中获取 authMode（数组第一项）
+    const authModeFromApi = props.authData?.authModes?.[0] || 'remoteAuth';
+    // 从接口返回数据中获取 paths
+    const pathsFromApi = props.authData?.path ? [props.authData.path] : [];
 
-    if (response.success) {
-      // 存储返回的requestId
-      if (response.requestId) {
-        requestId.value = response.requestId;
+    console.log('[AuthApply] props.authData:', props.authData);
+    console.log('[AuthApply] approverFromApi:', approverFromApi);
+
+    // 判断是否需要重新获取验证码（有 requestId 且没有 approvers）
+    if (requestId.value || props.authData?.requestId) {
+      if (!requestId.value) {
+        // 存储返回的requestId
+        requestId.value = props.authData?.requestId || '';
       }
+      // 需要重新获取验证码
+      console.log('[AuthApply] 调用 resendAuthCode 接口');
+      const resendResponse = await import('@/api/auth').then(m => m.resendAuthCode(requestId.value));
+      console.log('[AuthApply] resendAuthCode response:', resendResponse);
 
-      isGettingCode.value = false;
-      countdown.value = 60;
-      alert("验证码已发送");
+      if (resendResponse.success || (resendResponse.needAuth && resendResponse.error)) {
+        // 重新获取成功
+        isGettingCode.value = false;
+        countdown.value = 60;
+        alert("验证码已重新发送");
+      } else {
+        throw new Error(resendResponse.message || "获取验证码失败");
+      }
     } else {
-      throw new Error(response.message || "获取验证码失败");
+      // 首次获取验证码
+      const applyData = {
+        selectedApprovers: [approverFromApi],
+        authMode: authModeFromApi,
+        description: reasonType.value === 'other' ? customReason.value : reasonType.value,
+        paths: pathsFromApi,
+      };
+      console.log('[AuthApply] applyData:', applyData);
+      const response = await import('@/api/auth').then(m => m.submitAuthApply(applyData));
+      console.log('[AuthApply] submitAuthApply response:', response);
+
+      if (response.success) {
+        // 存储返回的requestId
+        if (response.requestId) {
+          requestId.value = response.requestId;
+        }
+
+        isGettingCode.value = false;
+        countdown.value = 60;
+        alert("验证码已发送");
+      } else {
+        throw new Error(response.message || "获取验证码失败");
+      }
     }
   } catch (err: any) {
     isGettingCode.value = false;
@@ -226,9 +269,9 @@ const submitApply = async () => {
 
   try {
     // 调用授权认证接口
-    console.log('authData:', authData);
+    console.log('[AuthApply] verifyAuthCode authData:', authData);
     const response = await import('@/api/auth').then(m => m.verifyAuthCode(authData));
-    console.log('response:', response);
+    console.log('[AuthApply] verifyAuthCode response:', response);
 
     if (response.success) {
       // 认证成功，关闭弹窗并继续下载
@@ -243,6 +286,7 @@ const submitApply = async () => {
 
 // 取消
 const cancel = () => {
+  requestId.value = "";
   layoutStore.closeHovers();
 };
 

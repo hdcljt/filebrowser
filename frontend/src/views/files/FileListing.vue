@@ -346,7 +346,7 @@ import { useFileStore } from "@/stores/file";
 import { useLayoutStore } from "@/stores/layout";
 
 import { users, files as api } from "@/api";
-import * as authApi from "@/api/auth";
+// import * as authApi from "@/api/auth";
 import { enableExec } from "@/utils/constants";
 import * as upload from "@/utils/upload";
 import css from "@/utils/css";
@@ -982,20 +982,75 @@ const download = async () => {
 
   // 获取选中文件的路径
   const selectedPaths = fileStore.selected.map(i => fileStore.req!.items[i].path);
+  const selectedURLs = fileStore.selected.map(i => fileStore.req!.items[i].url);
   console.log('selectedPaths', selectedPaths)
 
-  // 每次下载都显示授权申请页面
-  layoutStore.showHover({
-    prompt: "authApply",
-    props: {
-      paths: selectedPaths
-    },
-    confirm: (authData: any) => {
-      layoutStore.closeHovers();
-      // 授权成功，继续下载
-      performDownload();
-    },
-  });
+  // 先调用下载接口检查是否需要授权
+  if (fileStore.selectedCount === 1 && !fileStore.req.items[fileStore.selected[0]].isDir) {
+    // 单文件下载
+    const checkResult = await api.downloadCheck(fileStore.req.items[fileStore.selected[0]].url);
+    if (checkResult && (checkResult.needApply || checkResult.needAuth)) {
+      // 需要授权，弹出授权申请页面
+      layoutStore.showHover({
+        prompt: "authApply",
+        props: {
+          authData: checkResult
+        },
+        confirm: () => {
+          layoutStore.closeHovers();
+          // 授权成功后执行下载
+          api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+        },
+      });
+    } else if (checkResult && checkResult.error) {
+      // 其他错误
+      $showError(checkResult.error);
+    } else {
+      // 下载成功，直接执行下载
+      api.download(null, fileStore.req.items[fileStore.selected[0]].url);
+    }
+  } else {
+    // 多文件或文件夹下载，显示格式选择弹窗
+    layoutStore.showHover({
+      prompt: "download",
+      confirm: async (format: any) => {
+        layoutStore.closeHovers();
+
+        const files: string[] = [];
+
+        if (fileStore.selectedCount > 0 && fileStore.req !== null) {
+          for (const i of fileStore.selected) {
+            files.push(fileStore.req.items[i].url);
+          }
+        } else {
+          files.push(route.path);
+        }
+
+        // 先检查是否需要授权
+        const checkResult = await api.downloadCheck(...files);
+        if (checkResult && (checkResult.needApply || checkResult.needAuth)) {
+          // 需要授权，弹出授权申请页面
+          layoutStore.showHover({
+            prompt: "authApply",
+            props: {
+              authData: checkResult
+            },
+            confirm: () => {
+              layoutStore.closeHovers();
+              // 授权成功后执行下载
+              api.download(format, ...files);
+            },
+          });
+        } else if (checkResult && checkResult.error) {
+          // 其他错误
+          $showError(checkResult.error);
+        } else {
+          // 下载成功
+          api.download(format, ...files);
+        }
+      },
+    });
+  }
 };
 
 const performDownload = () => {

@@ -42,8 +42,7 @@ export async function validateLogin() {
   const jwt = localStorage.getItem("jwt")
   try {
     if (jwt) {
-      const data = jwtDecode(jwt);
-      console.log('validateLogin jwtDecode:', data)
+      console.log("before renew jwtDecode:", jwtDecode(jwt));
       await renew(jwt);
     }
   } catch (error) {

@@ -9,13 +9,17 @@ export async function get(id: number) {
 }
 
 export async function create(user: IUser, currentPassword: string) {
+  const functionCode = user.functionCode
+  const data = { ...user }
+  delete data.functionCode
   const res = await fetchURL(`/api/users`, {
     method: "POST",
     body: JSON.stringify({
       what: "user",
       which: [],
       current_password: currentPassword,
-      data: user,
+      ...(functionCode != null ? { functionCode } : {}),
+      data,
     }),
   });
 
@@ -31,13 +35,17 @@ export async function update(
   which = ["all"],
   currentPassword: string | null = null
 ) {
+  const functionCode = user.functionCode
+  const data = { ...user }
+  delete data.functionCode
   await fetchURL(`/api/users/${user.id}`, {
     method: "PUT",
     body: JSON.stringify({
       what: "user",
       which: which,
       ...(currentPassword != null ? { current_password: currentPassword } : {}),
-      data: user,
+      ...(functionCode != null ? { functionCode } : {}),
+      data,
     }),
   });
 }

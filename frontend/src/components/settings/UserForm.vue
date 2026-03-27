@@ -21,6 +21,17 @@
       />
     </p>
 
+    <p v-if="!isDefault">
+      <label for="function_code">{{ t("settings.functionCode") || "Function Code" }}</label>
+      <input
+        class="input input--block"
+        type="text"
+        :placeholder="functionCodePlaceholder"
+        v-model="user.functionCode"
+        id="function_code"
+      />
+    </p>
+
     <p>
       <label for="scope">{{ t("settings.scope") }}</label>
       <input
@@ -96,6 +107,9 @@ onMounted(() => {
 
 const passwordPlaceholder = computed(() =>
   props.isNew ? "" : t("settings.avoidChanges")
+);
+const functionCodePlaceholder = computed(() =>
+  props.isNew ? "如: 990000" : t("settings.avoidChanges")
 );
 const scopePlaceholder = computed(() =>
   createUserDirData.value ? t("settings.userScopeGenerationPlaceholder") : ""

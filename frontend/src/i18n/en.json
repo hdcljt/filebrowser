@@ -234,6 +234,7 @@
     "newPasswordConfirm": "Confirm your new password",
     "newUser": "New User",
     "password": "Password",
+    "functionCode": "Vault Authorization Code",
     "passwordUpdated": "Password updated!",
     "path": "Path",
     "perm": {
