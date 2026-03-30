@@ -276,6 +276,18 @@ const submitApply = async () => {
     return;
   }
 
+  // 获取 requestId（优先从本地存储，其次从 props）
+  if (!requestId.value) {
+    if (props.authData?.requestId) {
+      // 从接口返回数据中获取 requestId
+      requestId.value = props.authData.requestId;
+    } else {
+      // 缺少必要参数
+      error.value = "缺少必要参数：requestId，请先获取验证码";
+      return;
+    }
+  }
+
   const authData = {
     requestId: requestId.value,
     passCode: verificationCode.value,
